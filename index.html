@@ -6,10 +6,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+    * /* ✨ Ultra-polish animations */
+
+.card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+li {
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+li:hover {
+  transform: scale(1.01);
+  background: #eef2ff;
+}
+
+.check {
+  transition: all 0.2s ease;
+}
+
+.check.done {
+  transform: scale(1.1);
+}
+
+button {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+li {
+  animation: fadeSlideIn 0.25s ease;
+}
 
     body {
       margin: 0;
