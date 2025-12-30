@@ -151,59 +151,85 @@
 
     <div class="footer">Saved automatically • No login needed</div>
   </div>
+<script>
+  const input = document.getElementById("habitInput");
+  const list = document.getElementById("habitList");
 
-  <script>
-    const input = document.getElementById("habitInput");
-    const list = document.getElementById("habitList");
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const saved = JSON.parse(localStorage.getItem("habit_data_v3")) || {};
 
-    let habits = JSON.parse(localStorage.getItem("habits_v2")) || [];
+  if (!saved.date || saved.date !== todayKey) {
+    saved.date = todayKey;
+    saved.habits = (saved.habits || []).map(h => ({ ...h, done: false }));
+  }
 
-    function save() {
-      localStorage.setItem("habits_v2", JSON.stringify(habits));
-    }
+  let habits = saved.habits || [];
 
-    function render() {
-      list.innerHTML = "";
-      habits.forEach((h, i) => {
-        const li = document.createElement("li");
-        if (h.done) li.classList.add("done");
+  function save() {
+    localStorage.setItem("habit_data_v3", JSON.stringify({
+      date: todayKey,
+      habits
+    }));
+  }
 
-        li.innerHTML = `
-          <div class="left">
-            <div class="check ${h.done ? "done" : ""}" onclick="toggle(${i})">
-              ${h.done ? "✓" : ""}
-            </div>
-            <span>${h.text}</span>
+  function render() {
+    list.innerHTML = "";
+
+    let completed = habits.filter(h => h.done).length;
+    let percent = habits.length === 0 ? 0 : Math.round((completed / habits.length) * 100);
+
+    const progress = document.createElement("div");
+    progress.style.marginBottom = "12px";
+    progress.innerHTML = `
+      <div style="font-size:0.85rem;color:#6b7280;margin-bottom:4px">
+        Today's progress: ${percent}%
+      </div>
+      <div style="height:8px;background:#e5e7eb;border-radius:6px;overflow:hidden">
+        <div style="height:100%;width:${percent}%;background:#6366f1"></div>
+      </div>
+    `;
+    list.appendChild(progress);
+
+    habits.forEach((h, i) => {
+      const li = document.createElement("li");
+      if (h.done) li.classList.add("done");
+
+      li.innerHTML = `
+        <div class="left">
+          <div class="check ${h.done ? "done" : ""}" onclick="toggle(${i})">
+            ${h.done ? "✓" : ""}
           </div>
-          <button class="delete" onclick="removeHabit(${i})">×</button>
-        `;
+          <span>${h.text}</span>
+        </div>
+        <button class="delete" onclick="removeHabit(${i})">×</button>
+      `;
 
-        list.appendChild(li);
-      });
-    }
+      list.appendChild(li);
+    });
+  }
 
-    function addHabit() {
-      const text = input.value.trim();
-      if (!text) return;
-      habits.push({ text, done: false });
-      input.value = "";
-      save();
-      render();
-    }
-
-    function toggle(i) {
-      habits[i].done = !habits[i].done;
-      save();
-      render();
-    }
-
-    function removeHabit(i) {
-      habits.splice(i, 1);
-      save();
-      render();
-    }
-
+  function addHabit() {
+    const text = input.value.trim();
+    if (!text) return;
+    habits.push({ text, done: false });
+    input.value = "";
+    save();
     render();
-  </script>
+  }
+
+  function toggle(i) {
+    habits[i].done = !habits[i].done;
+    save();
+    render();
+  }
+
+  function removeHabit(i) {
+    habits.splice(i, 1);
+    save();
+    render();
+  }
+
+  render();
+</script>
 </body>
 </html>
