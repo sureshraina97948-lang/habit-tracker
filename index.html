@@ -6,87 +6,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
     body {
       margin: 0;
-      background: #f5f6f8;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      height: 100vh;
     }
-
-    .app {
-      width: 100%;
-      max-width: 420px;
-      background: white;
-      border-radius: 16px;
-      padding: 22px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    .card {
+      background: #1f2937;
+      padding: 25px;
+      border-radius: 12px;
+      width: 320px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     }
-
-    h1 {
+    h2 {
       text-align: center;
-      margin-bottom: 8px;
+      margin-bottom: 15px;
     }
-
-    .subtitle {
-      text-align: center;
-      color: #6b7280;
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-    }
-
-    input {
+    input, button {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
       border: none;
-      background: #6366f1;
-      color: white;
-      font-weight: 600;
+    }
+    button {
+      background: #38bdf8;
+      color: black;
+      font-weight: bold;
       cursor: pointer;
-      margin-bottom: 10px;
     }
-
-    .logout {
-      background: #ef4444;
-    }
-
-    .hidden {
-      display: none;
-    }
-
     ul {
       list-style: none;
       padding: 0;
-      margin: 0;
     }
-
     li {
-      background: #f9fafb;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 8px;
+      background: #111827;
+      padding: 8px;
+      margin-top: 8px;
+      border-radius: 6px;
     }
-
-    .link {
-      text-align: center;
-      font-size: 0.85rem;
-      color: #6366f1;
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -94,33 +59,24 @@
 <body>
 
   <!-- AUTH -->
-  <div class="app" id="authBox">
-    <h1>Habit Tracker</h1>
-    <div class="subtitle">Login or create an account</div>
-
+  <div class="card" id="auth">
+    <h2>Login / Sign Up</h2>
     <input id="email" type="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
-
-    <button onclick="login()">Login</button>
-    <button onclick="signup()">Create Account</button>
-
-    <div class="link" id="authMessage"></div>
+    <input id="password" type="password" placeholder="Password (6+ chars)" />
+    <button id="signupBtn">Create Account</button>
+    <button id="loginBtn">Login</button>
   </div>
 
-  <!-- HABITS -->
-  <div class="app hidden" id="habitBox">
-    <h1>Your Habits</h1>
-    <div class="subtitle">Stay consistent</div>
-
-    <input id="habitInput" placeholder="Add a habit…" />
-    <button onclick="addHabit()">Add Habit</button>
-
+  <!-- TRACKER -->
+  <div class="card hidden" id="tracker">
+    <h2>My Habits</h2>
+    <input id="habitInput" placeholder="New habit..." />
+    <button id="addHabitBtn">Add Habit</button>
     <ul id="habitList"></ul>
-
-    <button class="logout" onclick="logout()">Logout</button>
+    <button id="logoutBtn">Logout</button>
   </div>
 
-  <!-- FIREBASE LOGIC -->
+  <!-- FIREBASE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import {
@@ -131,64 +87,50 @@
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // 🔴 PASTE YOUR FIREBASE CONFIG HERE
+    // 🔴 REPLACE WITH YOUR REAL CONFIG (YOU ALREADY HAVE THIS)
     const firebaseConfig = {
-      apiKey: ""AIzaSyCf-_xJs3Jz2GD8ckcTkoFe0-QcmiB051A",",
-      authDomain: "habit-tracker-app.firebaseapp.com",
-      projectId: "habit-tracker-app",
-      appId: ""1:537584117598:web:cb3074318d1e9708e151cf""
+      apiKey: "AIzaSyCf-_xJs3Jz2GD8ckcTkoFe0-QcmiB051A",
+      authDomain: "habit-tracker-3fa5d.firebaseapp.com",
+      projectId: "Phabit-tracker-3fa5d",
+      appId: "1:537584117598:web:cb3074318d1e9708e151cf"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const emailInput = document.getElementById("email");
-const passwordInput = document.getElementById("password");
-const habitInput = document.getElementById("habitInput");
-const habitList = document.getElementById("habitList");
+    const email = document.getElementById("email");
+    const password = document.getElementById("password");
+    const signupBtn = document.getElementById("signupBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const authBox = document.getElementById("auth");
+    const tracker = document.getElementById("tracker");
 
+    signupBtn.onclick = () => {
+      createUserWithEmailAndPassword(auth, email.value, password.value)
+        .then(() => alert("Account created"))
+        .catch(err => alert(err.message));
+    };
 
-    let habits = [];
+    loginBtn.onclick = () => {
+      signInWithEmailAndPassword(auth, email.value, password.value)
+        .then(() => alert("Logged in"))
+        .catch(err => alert(err.message));
+    };
+
+    logoutBtn.onclick = () => {
+      signOut(auth);
+    };
 
     onAuthStateChanged(auth, user => {
       if (user) {
         authBox.classList.add("hidden");
-        habitBox.classList.remove("hidden");
+        tracker.classList.remove("hidden");
       } else {
         authBox.classList.remove("hidden");
-        habitBox.classList.add("hidden");
+        tracker.classList.add("hidden");
       }
     });
-
-    window.signup = () => {
-      createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-        .then(() => message.textContent = "Account created")
-        .catch(err => message.textContent = err.message);
-    };
-
-    window.login = () => {
-     signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-        .catch(err => message.textContent = err.message);
-    };
-
-    window.logout = () => signOut(auth);
-
-    window.addHabit = () => {
-      const text = habitInput.value.trim();
-      if (!text) return;
-      habits.push(text);
-      habitInput.value = "";
-      render();
-    };
-
-    function render() {
-      habitList.innerHTML = "";
-      habits.forEach(h => {
-        const li = document.createElement("li");
-        li.textContent = h;
-        habitList.appendChild(li);
-      });
-    }
   </script>
 
 </body>
