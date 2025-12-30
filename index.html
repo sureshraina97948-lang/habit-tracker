@@ -130,7 +130,22 @@
         authBox.classList.remove("hidden");
         tracker.classList.add("hidden");
       }
-    });
+    });const addHabitBtn = document.getElementById("addHabitBtn");
+const habitInput = document.getElementById("habitInput");
+const habitList = document.getElementById("habitList");
+
+// Add habit
+addHabitBtn.onclick = () => {
+  const text = habitInput.value.trim();
+  if (text === "") return;
+
+  const li = document.createElement("li");
+  li.textContent = text;
+  habitList.appendChild(li);
+
+  habitInput.value = "";
+};
+
   </script>
 
 </body>
