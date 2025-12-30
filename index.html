@@ -142,9 +142,11 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const authBox = document.getElementById("authBox");
-    const habitBox = document.getElementById("habitBox");
-    const message = document.getElementById("authMessage");
+    const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const habitInput = document.getElementById("habitInput");
+const habitList = document.getElementById("habitList");
+
 
     let habits = [];
 
@@ -159,13 +161,13 @@
     });
 
     window.signup = () => {
-      createUserWithEmailAndPassword(auth, email.value, password.value)
+      createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
         .then(() => message.textContent = "Account created")
         .catch(err => message.textContent = err.message);
     };
 
     window.login = () => {
-      signInWithEmailAndPassword(auth, email.value, password.value)
+     signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
         .catch(err => message.textContent = err.message);
     };
 
