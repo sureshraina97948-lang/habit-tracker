@@ -2,60 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Daily Habits</title>
+  <title>Habit Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
+
   <style>
-    * /* ✨ Ultra-polish animations */
-
-.card {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-}
-
-li {
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-li:hover {
-  transform: scale(1.01);
-  background: #eef2ff;
-}
-
-.check {
-  transition: all 0.2s ease;
-}
-
-.check.done {
-  transform: scale(1.1);
-}
-
-button {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-button:active {
-  transform: scale(0.96);
-}
-
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-li {
-  animation: fadeSlideIn 0.25s ease;
-}
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
 
     body {
       margin: 0;
@@ -63,61 +17,57 @@ li {
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
       padding: 20px;
     }
 
-    .container {
+    .app {
       width: 100%;
       max-width: 420px;
+      background: white;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
 
     h1 {
-      font-size: 1.6rem;
-      margin-bottom: 6px;
-      color: #111827;
+      text-align: center;
+      margin-bottom: 8px;
     }
 
     .subtitle {
+      text-align: center;
       color: #6b7280;
-      font-size: 0.9rem;
       margin-bottom: 20px;
-    }
-
-    .card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-    }
-
-    .input-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
+      font-size: 0.9rem;
     }
 
     input {
-      flex: 1;
+      width: 100%;
       padding: 12px;
+      margin-bottom: 12px;
       border-radius: 10px;
       border: 1px solid #e5e7eb;
-      font-size: 0.95rem;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: #6366f1;
     }
 
     button {
-      padding: 12px 16px;
+      width: 100%;
+      padding: 12px;
       border-radius: 10px;
       border: none;
       background: #6366f1;
       color: white;
       font-weight: 600;
       cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .logout {
+      background: #ef4444;
+    }
+
+    .hidden {
+      display: none;
     }
 
     ul {
@@ -127,155 +77,117 @@ li {
     }
 
     li {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px;
-      border-radius: 10px;
-      margin-bottom: 8px;
       background: #f9fafb;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 8px;
     }
 
-    li.done {
-      opacity: 0.6;
-      text-decoration: line-through;
-    }
-
-    .left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .check {
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
-      border: 2px solid #6366f1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 13px;
-      color: white;
-    }
-
-    .check.done {
-      background: #6366f1;
-    }
-
-    .delete {
-      border: none;
-      background: none;
-      color: #ef4444;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .footer {
-      margin-top: 15px;
+    .link {
       text-align: center;
-      font-size: 0.8rem;
-      color: #9ca3af;
+      font-size: 0.85rem;
+      color: #6366f1;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Daily Habits</h1>
-    <div class="subtitle">Simple. Calm. Consistent.</div>
 
-    <div class="card">
-      <div class="input-row">
-        <input id="habitInput" placeholder="Add a habit for today…" />
-        <button onclick="addHabit()">Add</button>
-      </div>
+  <!-- AUTH -->
+  <div class="app" id="authBox">
+    <h1>Habit Tracker</h1>
+    <div class="subtitle">Login or create an account</div>
 
-      <ul id="habitList"></ul>
-    </div>
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
 
-    <div class="footer">Saved automatically • No login needed</div>
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Create Account</button>
+
+    <div class="link" id="authMessage"></div>
   </div>
-<script>
-  const input = document.getElementById("habitInput");
-  const list = document.getElementById("habitList");
 
-  const todayKey = new Date().toISOString().slice(0, 10);
-  const saved = JSON.parse(localStorage.getItem("habit_data_v3")) || {};
+  <!-- HABITS -->
+  <div class="app hidden" id="habitBox">
+    <h1>Your Habits</h1>
+    <div class="subtitle">Stay consistent</div>
 
-  if (!saved.date || saved.date !== todayKey) {
-    saved.date = todayKey;
-    saved.habits = (saved.habits || []).map(h => ({ ...h, done: false }));
-  }
+    <input id="habitInput" placeholder="Add a habit…" />
+    <button onclick="addHabit()">Add Habit</button>
 
-  let habits = saved.habits || [];
+    <ul id="habitList"></ul>
 
-  function save() {
-    localStorage.setItem("habit_data_v3", JSON.stringify({
-      date: todayKey,
-      habits
-    }));
-  }
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
 
-  function render() {
-    list.innerHTML = "";
+  <!-- FIREBASE LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    let completed = habits.filter(h => h.done).length;
-    let percent = habits.length === 0 ? 0 : Math.round((completed / habits.length) * 100);
+    // 🔴 PASTE YOUR FIREBASE CONFIG HERE
+    const firebaseConfig = {
+      apiKey: "PASTE_HERE",
+      authDomain: "PASTE_HERE",
+      projectId: "PASTE_HERE",
+      appId: "PASTE_HERE"
+    };
 
-    const progress = document.createElement("div");
-    progress.style.marginBottom = "12px";
-    progress.innerHTML = `
-      <div style="font-size:0.85rem;color:#6b7280;margin-bottom:4px">
-        Today's progress: ${percent}%
-      </div>
-      <div style="height:8px;background:#e5e7eb;border-radius:6px;overflow:hidden">
-        <div style="height:100%;width:${percent}%;background:#6366f1"></div>
-      </div>
-    `;
-    list.appendChild(progress);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    habits.forEach((h, i) => {
-      const li = document.createElement("li");
-      if (h.done) li.classList.add("done");
+    const authBox = document.getElementById("authBox");
+    const habitBox = document.getElementById("habitBox");
+    const message = document.getElementById("authMessage");
 
-      li.innerHTML = `
-        <div class="left">
-          <div class="check ${h.done ? "done" : ""}" onclick="toggle(${i})">
-            ${h.done ? "✓" : ""}
-          </div>
-          <span>${h.text}</span>
-        </div>
-        <button class="delete" onclick="removeHabit(${i})">×</button>
-      `;
+    let habits = [];
 
-      list.appendChild(li);
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        authBox.classList.add("hidden");
+        habitBox.classList.remove("hidden");
+      } else {
+        authBox.classList.remove("hidden");
+        habitBox.classList.add("hidden");
+      }
     });
-  }
 
-  function addHabit() {
-    const text = input.value.trim();
-    if (!text) return;
-    habits.push({ text, done: false });
-    input.value = "";
-    save();
-    render();
-  }
+    window.signup = () => {
+      createUserWithEmailAndPassword(auth, email.value, password.value)
+        .then(() => message.textContent = "Account created")
+        .catch(err => message.textContent = err.message);
+    };
 
-  function toggle(i) {
-    habits[i].done = !habits[i].done;
-    save();
-    render();
-  }
+    window.login = () => {
+      signInWithEmailAndPassword(auth, email.value, password.value)
+        .catch(err => message.textContent = err.message);
+    };
 
-  function removeHabit(i) {
-    habits.splice(i, 1);
-    save();
-    render();
-  }
+    window.logout = () => signOut(auth);
 
-  render();
-</script>
+    window.addHabit = () => {
+      const text = habitInput.value.trim();
+      if (!text) return;
+      habits.push(text);
+      habitInput.value = "";
+      render();
+    };
+
+    function render() {
+      habitList.innerHTML = "";
+      habits.forEach(h => {
+        const li = document.createElement("li");
+        li.textContent = h;
+        habitList.appendChild(li);
+      });
+    }
+  </script>
+
 </body>
 </html>
