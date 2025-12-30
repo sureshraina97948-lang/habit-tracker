@@ -81,6 +81,86 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import {
       getAuth,
+      let habits = [];
+
+// Load habits after login
+onAuthStateChanged(auth, user => {
+  if (user) {
+    authBox.classList.add("hidden");
+    tracker.classList.remove("hidden");
+
+    // Load saved habits for this user
+    const saved = localStorage.getItem("habits_" + user.uid);
+    habits = saved ? JSON.parse(saved) : [];
+    renderHabits();
+  } else {
+    authBox.classList.remove("hidden");
+    tracker.classList.add("hidden");
+  }
+});
+
+// Save habits for logged-in user
+function saveHabits(user) {
+  if (!user) return;
+  localStorage.setItem("habits_" + user.uid, JSON.stringify(habits));
+}
+
+// Add habit
+addHabitBtn.onclick = () => {
+  const text = habitInput.value.trim();
+  if (!text) return;
+
+  habits.push({ text, done: false });
+  habitInput.value = "";
+
+  saveHabits(auth.currentUser);
+  renderHabits();
+};
+
+// Toggle habit
+function toggleHabit(index) {
+  habits[index].done = !habits[index].done;
+  saveHabits(auth.currentUser);
+  renderHabits();
+}
+
+// Delete habit
+function deleteHabit(index) {
+  habits.splice(index, 1);
+  saveHabits(auth.currentUser);
+  renderHabits();
+}
+
+// Render habits
+function renderHabits() {
+  habitList.innerHTML = "";
+
+  habits.forEach((habit, index) => {
+    const li = document.createElement("li");
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = habit.done;
+    checkbox.onchange = () => toggleHabit(index);
+
+    const span = document.createElement("span");
+    span.textContent = habit.text;
+    span.style.marginLeft = "8px";
+    if (habit.done) span.style.textDecoration = "line-through";
+
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "✕";
+    delBtn.style.marginLeft = "10px";
+    delBtn.onclick = () => deleteHabit(index);
+
+    li.appendChild(checkbox);
+    li.appendChild(span);
+    li.appendChild(delBtn);
+
+    habitList.appendChild(li);
+  });
+}
+
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
       signOut,
